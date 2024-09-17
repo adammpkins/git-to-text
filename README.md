@@ -1,6 +1,6 @@
 # git-to-text
 
-git-to-text is a Go-based implementation inspired by the Python project [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader). It converts the contents of a Git repository into a single text file, designed to help developers easily share or analyze their codebase in a linear format.
+git-to-text is a Go-based implementation inspired by the Python project [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader). It converts the contents of a Git repository into a single text file, designed to help developers easily share or analyze their codebase in a linear format, especially for loading into an LLM.
 
 ## Acknowledgment
 
