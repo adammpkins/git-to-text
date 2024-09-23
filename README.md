@@ -23,7 +23,7 @@ This project is a Go port of the original [gpt-repository-loader](https://github
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/git-to-text.git
+   git clone https://github.com/adammpkins/git-to-text.git
    cd git-to-text
    ```
 
