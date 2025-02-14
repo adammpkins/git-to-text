@@ -11,7 +11,6 @@ This project is a Go port of the original [gpt-repository-loader](https://github
 - Converts an entire Git repository into a single text file with clear file boundaries.
 - Uses a detailed default ignore list to automatically skip build artifacts, caches, and dependency folders from nearly every ecosystem.
 - Supports custom ignore patterns via a `.gptignore` file placed in the repository root.
-- If a `.gptignore` pattern ends with a slash, it automatically appends `**` to match all files within that directory.
 - Offers a `--unignore` flag so you can override default ignores and include specific directories if needed.
 - Accepts a local repository path **or** a GitHub URL; if a URL is provided, the tool clones the repository (using a shallow clone) into a temporary directory and cleans it up afterward.
 - Supports custom preamble files for contextual output.
