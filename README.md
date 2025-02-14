@@ -1,6 +1,6 @@
 # git-to-text
 
-git-to-text is a Go-based implementation inspired by the Python project [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader). It converts the contents of a Git repository into a single text file, designed to help developers easily share or analyze their codebase in a linear format, especially for loading into an LLM.
+git-to-text is a Go-based tool inspired by the Python project [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader). It converts the contents of a Git repository into a single text file—ideal for loading into an LLM for repository analysis or chat-based interactions with your codebase.
 
 ## Acknowledgment
 
@@ -8,10 +8,14 @@ This project is a Go port of the original [gpt-repository-loader](https://github
 
 ## Features
 
-- Converts an entire Git repository into a single text file
-- Respects `.gptignore` file for excluding specific files or patterns
-- Supports custom preambles to provide context for the output
-- Cross-platform compatibility (Windows, macOS, Linux)
+- Converts an entire Git repository into a single text file with clear file boundaries.
+- Uses a detailed default ignore list to automatically skip build artifacts, caches, and dependency folders from nearly every ecosystem.
+- Supports custom ignore patterns via a `.gptignore` file placed in the repository root.
+- If a `.gptignore` pattern ends with a slash, it automatically appends `**` to match all files within that directory.
+- Offers a `--unignore` flag so you can override default ignores and include specific directories if needed.
+- Accepts a local repository path **or** a GitHub URL; if a URL is provided, the tool clones the repository (using a shallow clone) into a temporary directory and cleans it up afterward.
+- Supports custom preamble files for contextual output.
+- Ensures deterministic file ordering and skips binary files using a simple heuristic.
 
 ## Installation
 
@@ -49,41 +53,119 @@ Run the program with the following syntax:
 
 ### Arguments:
 
-- `/path/to/git/repository`: The path to the Git repository you want to convert (required)
-- `-p /path/to/preamble.txt`: Path to a custom preamble file (optional)
-- `-o /path/to/output_file.txt`: Path for the output file (optional, defaults to `output.txt`)
+- `<repository_path_or_github_url>`: Either the path to the Git repository or a GitHub URL.
+- `-p /path/to/preamble.txt`: Path to a custom preamble file (optional). If not provided, a default preamble is used.
+- `-o /path/to/output_file.txt`: Path for the output file (optional, defaults to `output.txt`).
+- `--unignore dir1,dir2,...`: (Optional) Comma-separated list of default ignored directories to include in the output.
 
-### Example:
+### Examples:
 
-```
-./git-to-text /home/user/projects/my-repo -p /home/user/preamble.txt -o /home/user/my-repo-output.txt
-```
+- **Local Repository:**
+
+```./git-to-text /home/user/projects/my-repo -p /home/user/preamble.txt -o /home/user/my-repo-output.txt```
+
+
+- **GitHub URL:**
+```./git-to-text https://github.com/adammpkins/my-repo --unignore node_modules,vendor```
+
+The tool will clone the repository into a temporary directory, process it, and then clean up the clone.
+
+## Default Ignores
+
+By default, `git-to-text` automatically skips certain directories and files that are typically irrelevant to code analysis (e.g., build artifacts, caches, dependencies). Below is the exhaustive list:
+   
+- `.git`
+- `.idea`
+- `.vscode`
+- `.vs`
+- `node_modules`
+- `vendor`
+- `bower_components`
+- `dist`
+- `build`
+- `coverage`
+- `tmp`
+- `cache`
+- `.sass-cache`
+- `.next`
+- `target`
+- `.bundle`
+- `log`
+- `bin`
+- `pkg`
+- `zig-out`
+- `.gradle`
+- `out`
+- `_build`
+- `deps`
+- `pycache`
+- `.venv`
+- `env`
+- `obj`
+- `.dart_tool`
+- `DerivedData`
+- `CMakeFiles`
+- `cmake-build-debug`
+- `cmake-build-release`
+- `Pods`
+- `Library`
+- `Temp`
+- `Logs`
+- `Binaries`
+- `Intermediate`
+- `Saved`
+- `xcuserdata`
+- `Rproj.user`
+- `bazel-out`
+- `bazel-bin`
+- `bazel-testlogs`
+- `bazel-genfiles`
+- `nimcache`
+- `TestResults`
+- `elm-stuff`
+- `export`
+- `.eggs`
+- `blib`
+- `ebin`
+
+Note: If any of these directories are important for your use case, you can include them via the --unignore flag (see above).
+
+
 
 ## .gptignore File
 
-You can create a `.gptignore` file in the root of your Git repository to specify files or patterns to ignore. The syntax is similar to `.gitignore`. If no `.gptignore` file is found in the repository, the program will look for one in the same directory as the executable.
+Place a `.gptignore` file in the **root** of your Git repository to specify files or patterns to ignore. The syntax is similar to `.gitignore`. Note that if a pattern ends with a slash (e.g., `logs/`), the tool will automatically append `**` so that all files within that directory are excluded.
 
 Example `.gptignore`:
-
-```
-*.log
-node_modules/
-build/
+```logs/
+bootstrap/
+storage/
+.env
 ```
 
 ## Preamble
 
-By default, the program uses a standard preamble to explain the structure of the output file. You can provide a custom preamble file using the `-p` option. If no custom preamble is specified, the program will attempt to use the repository's README.md file as the preamble.
+By default, the tool uses a standard preamble explaining the output file's structure. You can override this by providing your own preamble file using the `-p` option.
+
+# Additional Notes
+ ### Binary Detection
+git-to-text uses a simple heuristic to detect binary files: it scans each file for any NUL bytes (0x00). If a NUL byte is found, the file is considered binary and is automatically skipped. This helps ensure that non-text content or minified code isn't included in the output.
+
+### GitHub URL Cloning
+When you provide a GitHub URL (or any HTTP/HTTPS Git repository URL) instead of a local path, git-to-text performs a shallow clone using `git clone --depth 1` into a temporary directory. This minimizes both download size and processing time. After processing the repository, the temporary clone is automatically cleaned up. 
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. We encourage continuing the spirit of the original project by using AI assistance in development where possible.
+Contributions are welcome! Please submit a Pull Request. We encourage leveraging AI assistance in development while maintaining the spirit of the original project.
+
+
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- Thanks to [mpoon](https://github.com/mpoon) for the original [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader) project that inspired this Go implementation.
+- Thanks to [mpoon](https://github.com/mpoon) for the original [gpt-repository-loader](https://github.com/mpoon/gpt-repository-loader) project.
 - Thanks to the creators of the `doublestar` package for providing powerful file pattern matching capabilities.
+
