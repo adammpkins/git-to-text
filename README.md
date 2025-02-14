@@ -66,6 +66,7 @@ Run the program with the following syntax:
 
 
 - **GitHub URL:**
+
 ```./git-to-text https://github.com/adammpkins/my-repo --unignore node_modules,vendor```
 
 The tool will clone the repository into a temporary directory, process it, and then clean up the clone.
